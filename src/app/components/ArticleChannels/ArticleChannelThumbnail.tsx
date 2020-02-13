@@ -18,7 +18,7 @@ interface ArticleChannelThumbnailProps {
 }
 
 export enum ArticleChannelThumbnailImageSize {
-  WIDTH_100 = 'w=100',
+  HEIGHT_200 = 'h=200',
 }
 
 export const ArticleChannelThumbnail: React.FunctionComponent<ArticleChannelThumbnailProps> = props => {
@@ -31,7 +31,7 @@ export const ArticleChannelThumbnail: React.FunctionComponent<ArticleChannelThum
     // eslint-disable-next-line @typescript-eslint/no-empty-function
     onLinkClick = () => {},
     isEnabled = true,
-    imageSize = ArticleChannelThumbnailImageSize.WIDTH_100,
+    imageSize = ArticleChannelThumbnailImageSize.HEIGHT_200,
   } = props;
 
   const [isWrongImage, setIsWrongImage] = React.useState(false);
