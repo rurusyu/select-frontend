@@ -5,7 +5,7 @@ import { forceCheck } from 'react-lazyload';
 import { connect } from 'react-redux';
 
 import { HelmetWithTitle } from 'app/components';
-import { ConnectedBigBannerCarousel } from 'app/components/Home/BigBanner';
+import BigBanner from 'app/components/Home/BigBanner';
 import { ConnectedHomeSectionList } from 'app/components/Home/HomeSectionList';
 import { PageTitleText } from 'app/constants';
 import {
@@ -83,7 +83,7 @@ export class Home extends React.PureComponent<
         <div className="a11y">
           <h1>리디셀렉트 홈</h1>
         </div>
-        <ConnectedBigBannerCarousel />
+        <BigBanner />
         <ConnectedHomeSectionList />
       </main>
     );

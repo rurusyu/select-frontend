@@ -5,8 +5,8 @@ import differenceInHours from 'date-fns/differenceInHours';
 
 import { RidiSelectState } from 'app/store';
 import { HelmetWithTitle } from 'app/components';
+import BigBanner from 'app/components/Home/BigBanner';
 import { FetchStatusFlag, PageTitleText } from 'app/constants';
-import { ConnectedBigBannerCarousel } from 'app/components/Home/BigBanner';
 import { Actions, ArticleHomeSectionType } from 'app/services/articleHome';
 import { sendPostRobotInitialRendered } from 'app/utils/inAppMessageEvents';
 import { Actions as ArticleFollowingActions } from 'app/services/articleFollowing';
@@ -49,7 +49,7 @@ export const ArticleHome: React.FunctionComponent = () => {
       <div className="a11y">
         <h1>리디셀렉트 아티클 홈</h1>
       </div>
-      <ConnectedBigBannerCarousel />
+      <BigBanner />
       <div className="ArticleHome_Panel">
         <ArticleHomeListSection
           title="최근 추가된 아티클"
