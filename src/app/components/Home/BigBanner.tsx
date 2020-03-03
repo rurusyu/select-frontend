@@ -20,7 +20,10 @@ const BigBanner: React.FunctionComponent = () => {
     main_image_url: bannerItem.imageUrl,
     title: bannerItem.title,
   }));
-  console.log(bigBannerList);
+
+  if (!fetchedAt) {
+    return null;
+  }
 
   return <TopBannerCarousel banners={banners} />;
 };

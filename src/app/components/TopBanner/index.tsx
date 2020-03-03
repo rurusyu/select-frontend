@@ -6,20 +6,13 @@ import BigBannerCarousel from 'app/components/BigBannerCarousel';
 import ArrowRight from 'svgs/ArrowHeadRight.svg';
 import ArrowLeft from 'svgs/ArrowHeadLeft.svg';
 
-const DESKTOP_INACTIVE_SCALE = 1;
-const ITEM_MARGIN = 0;
-
 const IMAGE_WIDTH = 432;
-const MD_IMAGE_WIDTH = 355;
-
 const SLIDE_RADIUS = 1;
 const SCROLL_DURATION = 5000;
 
-const CarouselWrapper = styled.div<{ itemWidth: number; inactiveScale: number }>`
+const CarouselWrapper = styled.div<{ itemWidth: number }>`
   width: 100%;
-  max-width: ${props =>
-    props.itemWidth * (props.inactiveScale * (SLIDE_RADIUS + 1) * 2 + 1) +
-    ITEM_MARGIN * (SLIDE_RADIUS + 1) * 2}px;
+  max-width: ${props => props.itemWidth * ((SLIDE_RADIUS + 1) * 2 + 1)}px;
   margin: 0 auto;
   position: relative;
   overflow: hidden;
@@ -82,7 +75,6 @@ const BannerImage = styled.img`
 interface CarouselItemContainerProps {
   imageWidth: number;
   imageHeight: number;
-  inactiveScale: number;
   active?: boolean;
   invisible?: boolean;
 }
@@ -90,8 +82,8 @@ interface CarouselItemContainerProps {
 const CarouselItemContainer = styled.li<CarouselItemContainerProps>`
   flex: none;
   position: relative;
-  width: ${props => props.imageWidth * (props.active ? 1 : props.inactiveScale)}px;
-  height: ${props => props.imageHeight * (props.active ? 1 : props.inactiveScale)}px;
+  width: ${props => props.imageWidth}px;
+  height: ${props => props.imageHeight}px;
 
   overflow: hidden;
   line-height: 0;
@@ -120,7 +112,6 @@ const CarouselItemContainer = styled.li<CarouselItemContainerProps>`
 
 const ArrowWrapper = styled.div`
   margin: 0 10px;
-
   pointer-events: auto;
 `;
 
@@ -150,14 +141,8 @@ const Arrow = styled.button`
   }
 `;
 
-function calcItemWidth(isDesktop: boolean, isMobile: boolean) {
-  if (isDesktop) {
-    return IMAGE_WIDTH;
-  }
-  if (isMobile) {
-    return IMAGE_WIDTH;
-  }
-  return null;
+function calcItemWidth(isResponsive: boolean) {
+  return isResponsive ? null : IMAGE_WIDTH;
 }
 
 /**
@@ -186,21 +171,19 @@ interface TopBanner {
 
 interface CarouselItemProps {
   itemWidth: number;
-  inactiveScale: number;
   banner: TopBanner;
   active: boolean;
   invisible: boolean;
 }
 
 function CarouselItem(props: CarouselItemProps) {
-  const { itemWidth, inactiveScale, banner, active, invisible } = props;
+  const { itemWidth, banner, active, invisible } = props;
   // const [intersecting, setIntersecting] = React.useState(false);
   // const ref = useViewportIntersection<HTMLLIElement>(setIntersecting);
   return (
     <CarouselItemContainer
       imageWidth={itemWidth}
       imageHeight={itemWidth}
-      inactiveScale={inactiveScale}
       active={active}
       invisible={invisible}
     >
@@ -228,26 +211,21 @@ export default function TopBannerCarousel(props: TopBannerCarouselProps) {
   const handleRightClick = React.useCallback(() => setCurrentIdx(idx => (idx + 1) % len), [len]);
 
   // 반응형 너비 조정
-  const isMobile = useMediaQuery({ minWidth: `${IMAGE_WIDTH}px` });
-  const isDesktop = useMediaQuery({ minWidth: '1000px' });
+  const isResponsive = useMediaQuery({ maxWidth: `${IMAGE_WIDTH}px` });
   const [width, setWidth] = React.useState(IMAGE_WIDTH);
-  const [inactiveScale, setInactiveScale] = React.useState(1);
   React.useEffect(() => {
     function handleResize() {
-      setWidth(window.innerWidth - ITEM_MARGIN * 2);
+      setWidth(window.innerWidth);
     }
 
-    const newWidth = calcItemWidth(isDesktop, isMobile);
+    const newWidth = calcItemWidth(isResponsive);
     if (newWidth == null) {
       window.addEventListener('resize', handleResize);
       handleResize();
       return () => window.removeEventListener('resize', handleResize);
     }
     setWidth(newWidth);
-  }, [isDesktop, isMobile]);
-  React.useEffect(() => {
-    setInactiveScale(isDesktop ? DESKTOP_INACTIVE_SCALE : 1);
-  }, [isDesktop]);
+  }, [isResponsive]);
 
   // 터치 핸들링
   const wrapperRef = React.useRef<HTMLDivElement>();
@@ -305,7 +283,7 @@ export default function TopBannerCarousel(props: TopBannerCarouselProps) {
           const diff = touch.clientX - touchRef.current.startX;
           const dTime = window.performance.now() - touchRef.current.at;
           const velocity = diff / dTime; // px/ms
-          const vThreshold = (width + ITEM_MARGIN) / 200 / 3;
+          const vThreshold = width / 200 / 3;
           // threshold 처리
           if (diff > width / 3 || velocity > vThreshold) {
             setCurrentIdx(idx => (idx - 1 + len) % len);
@@ -372,7 +350,6 @@ export default function TopBannerCarousel(props: TopBannerCarouselProps) {
     <CarouselWrapper
       ref={wrapperRef}
       itemWidth={width}
-      inactiveScale={inactiveScale}
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
       onTouchCancel={handleTouchCancel}
@@ -382,8 +359,6 @@ export default function TopBannerCarousel(props: TopBannerCarouselProps) {
       <BigBannerCarousel
         totalItems={len}
         itemWidth={width}
-        itemMargin={ITEM_MARGIN}
-        inactiveScale={inactiveScale}
         currentIdx={currentIdx}
         touchDiff={touchDiff}
       >
@@ -391,7 +366,6 @@ export default function TopBannerCarousel(props: TopBannerCarouselProps) {
           <CarouselItem
             key={index}
             itemWidth={itemWidth}
-            inactiveScale={inactiveScale}
             banner={banners[index]}
             active={index === activeIndex}
             invisible={
@@ -412,7 +386,7 @@ export default function TopBannerCarousel(props: TopBannerCarouselProps) {
           </SlideBadge>
         </CarouselController>
       </CarouselControllerWrapper>
-      {!!isMobile && (
+      {!isResponsive && (
         <CarouselControllerWrapper>
           <ArrowWrapper>
             <Arrow onClick={handleLeftClick}>

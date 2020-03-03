@@ -18,5 +18,14 @@ module.exports = {
     '@babel/plugin-syntax-import-meta',
     ['@babel/plugin-proposal-class-properties', { loose: false }],
     '@babel/plugin-proposal-json-strings',
+    [
+      'emotion',
+      {
+        sourceMap: true,
+        autoLabel: process.env.NODE_ENV !== 'production',
+        labelFormat: '[dirname]-[filename]--[local]',
+        cssPropOptimization: true,
+      },
+    ],
   ],
 };
