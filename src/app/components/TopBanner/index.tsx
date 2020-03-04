@@ -6,7 +6,7 @@ import BigBannerCarousel from 'app/components/BigBannerCarousel';
 import ArrowRight from 'svgs/ArrowHeadRight.svg';
 import ArrowLeft from 'svgs/ArrowHeadLeft.svg';
 
-const IMAGE_WIDTH = 432;
+export const IMAGE_WIDTH = 432;
 const SLIDE_RADIUS = 1;
 const SCROLL_DURATION = 5000;
 
