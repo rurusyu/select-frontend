@@ -58,7 +58,7 @@ export const ArticleContentGetTicketToRead: React.FunctionComponent<{
     <div
       className={classNames(
         'ArticleContent_GetTicketToReadButtonWrapper',
-        articleState.article.isPublic &&
+        !articleState.article.isTeaser &&
           'ArticleContent_GetTicketToReadButtonWrapper-publicContent',
         isSticky && 'ArticleContent_GetTicketToReadButtonWrapper-sticky',
       )}

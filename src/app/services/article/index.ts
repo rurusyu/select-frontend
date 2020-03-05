@@ -62,7 +62,6 @@ export interface Article {
   authors?: AuthorResponse[];
   isFavorite?: boolean;
   isEnabled?: boolean;
-  isPublic?: boolean;
   favoritesCount?: number;
 }
 
