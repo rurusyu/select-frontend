@@ -7,8 +7,12 @@ import { ConnectedSearch } from 'app/components/Search';
 import { AppStatus } from 'app/services/app';
 import { GNBColorLevel } from 'app/services/commonUI';
 
-import { MAX_WIDTH, RoutePaths } from 'app/constants';
-import { getBackgroundColorRGBString, getGNBType } from 'app/services/commonUI/selectors';
+import { RoutePaths } from 'app/constants';
+import {
+  getBackgroundColorRGBString,
+  getGNBType,
+  getIsMobile,
+} from 'app/services/commonUI/selectors';
 import {
   getIsAndroidInApp,
   getIsIosInApp,
@@ -18,7 +22,6 @@ import {
 import { RidiSelectState } from 'app/store';
 import { moveToLogin } from 'app/utils/utils';
 import { connect } from 'react-redux';
-import MediaQuery from 'react-responsive';
 
 interface Props {
   gnbType: GNBColorLevel;
@@ -35,6 +38,7 @@ interface Props {
   hasAvailableTicket: boolean;
   isSimpleGNB: boolean;
   appStatus: AppStatus;
+  isMobile: boolean;
 }
 
 interface GNBTab {
@@ -220,39 +224,42 @@ export class GNB extends React.Component<Props> {
   }
 
   public render() {
-    const { gnbType, isInApp, isGnbTab, isSimpleGNB, backgroundColorRGBString } = this.props;
+    const {
+      gnbType,
+      isInApp,
+      isGnbTab,
+      isSimpleGNB,
+      backgroundColorRGBString,
+      isMobile,
+    } = this.props;
 
     return (
-      <MediaQuery maxWidth={MAX_WIDTH}>
-        {isMobile => (
-          <header
-            className={classNames('GNBWrapper', `GNBWrapper-${gnbType}`)}
-            style={{ backgroundColor: backgroundColorRGBString }}
-          >
-            <div className="GNBContentWrapper">
-              <div className="GNBLeft">
-                {isInApp && !isSimpleGNB ? (
-                  isGnbTab ? (
-                    this.renderGNBTab()
-                  ) : (
-                    this.renderGNBLogo()
-                  )
-                ) : (
-                  <>
-                    {this.renderGNBLogo()}
-                    {this.renderServiceLink()}
-                  </>
-                )}
-              </div>
-              <div className="GNBRight">
-                {this.renderGNBSearchButton(isMobile)}
-                {this.renderGNBAccountButtons()}
-              </div>
-            </div>
-            {isInApp || isSimpleGNB ? null : <div className="GNBTab ">{this.renderGNBTab()}</div>}
-          </header>
-        )}
-      </MediaQuery>
+      <header
+        className={classNames('GNBWrapper', `GNBWrapper-${gnbType}`)}
+        style={{ backgroundColor: backgroundColorRGBString }}
+      >
+        <div className="GNBContentWrapper">
+          <div className="GNBLeft">
+            {isInApp && !isSimpleGNB ? (
+              isGnbTab ? (
+                this.renderGNBTab()
+              ) : (
+                this.renderGNBLogo()
+              )
+            ) : (
+              <>
+                {this.renderGNBLogo()}
+                {this.renderServiceLink()}
+              </>
+            )}
+          </div>
+          <div className="GNBRight">
+            {this.renderGNBSearchButton(isMobile)}
+            {this.renderGNBAccountButtons()}
+          </div>
+        </div>
+        {isInApp || isSimpleGNB ? null : <div className="GNBTab ">{this.renderGNBTab()}</div>}
+      </header>
     );
   }
 }
@@ -272,6 +279,7 @@ const mapStateToProps = (rootState: RidiSelectState) => ({
   isSimpleGNB: getIsSimpleGNB(rootState),
   isGnbTab: rootState.commonUI.isGnbTab,
   appStatus: rootState.app.appStatus,
+  isMobile: getIsMobile(rootState),
 });
 
 export const ConnectedGNB = connect(mapStateToProps)(GNB);
