@@ -1,10 +1,14 @@
 import styled from '@emotion/styled';
 import React from 'react';
+import { useDispatch } from 'react-redux';
 import { useMediaQuery } from 'react-responsive';
 
 import BigBannerCarousel from 'app/components/BigBannerCarousel';
+import { Actions as TrackingActions, DefaultTrackingParams } from 'app/services/tracking';
 import ArrowRight from 'svgs/ArrowHeadRight.svg';
 import ArrowLeft from 'svgs/ArrowHeadLeft.svg';
+
+import CarouselItem from './CarouselItem';
 
 export const IMAGE_WIDTH = 432;
 const SLIDE_RADIUS = 1;
@@ -54,60 +58,6 @@ const SlideBadge = styled.div`
   line-height: 22px;
   text-align: center;
   color: white;
-`;
-
-const BannerImageLink = styled.a`
-  width: 100%;
-  height: 100%;
-
-  display: inline-block;
-  outline: none;
-`;
-
-const BannerImage = styled.img`
-  width: 100%;
-  height: 100%;
-
-  object-fit: cover;
-  object-position: 0 0;
-`;
-
-interface CarouselItemContainerProps {
-  imageWidth: number;
-  imageHeight: number;
-  active?: boolean;
-  invisible?: boolean;
-}
-
-const CarouselItemContainer = styled.li<CarouselItemContainerProps>`
-  flex: none;
-  position: relative;
-  width: ${props => props.imageWidth}px;
-  height: ${props => props.imageHeight}px;
-
-  overflow: hidden;
-  line-height: 0;
-  transition: width 0.2s, height 0.2s, box-shadow 0.2s, opacity 0.2s;
-  opacity: ${props => (props.invisible ? 0 : 1)};
-
-  &:focus-within {
-    box-shadow: 0 0.8px 3px rgba(0, 0, 0, 0.33);
-  }
-
-  & ::before {
-    display: block;
-    content: '';
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-
-    transition: background-color 0.2s;
-    background-color: rgba(26, 26, 26, ${props => (props.active ? 0 : 0.5)});
-
-    pointer-events: none;
-  }
 `;
 
 const ArrowWrapper = styled.div`
@@ -167,40 +117,17 @@ interface TopBanner {
   landing_url: string;
   title: string;
   main_image_url: string;
-}
-
-interface CarouselItemProps {
-  itemWidth: number;
-  banner: TopBanner;
-  active: boolean;
-  invisible: boolean;
-}
-
-function CarouselItem(props: CarouselItemProps) {
-  const { itemWidth, banner, active, invisible } = props;
-  // const [intersecting, setIntersecting] = React.useState(false);
-  // const ref = useViewportIntersection<HTMLLIElement>(setIntersecting);
-  return (
-    <CarouselItemContainer
-      imageWidth={itemWidth}
-      imageHeight={itemWidth}
-      active={active}
-      invisible={invisible}
-    >
-      <BannerImageLink href={banner.landing_url} tabIndex={active ? 0 : -1}>
-        <BannerImage alt={banner.title} src={banner.main_image_url} />
-      </BannerImageLink>
-    </CarouselItemContainer>
-  );
+  id: number;
 }
 
 export interface TopBannerCarouselProps {
   banners: TopBanner[];
-  slug?: string;
+  section: string;
 }
 
 export default function TopBannerCarousel(props: TopBannerCarouselProps) {
-  const { banners, slug } = props;
+  const dispatch = useDispatch();
+  const { banners, section } = props;
   const len = banners.length;
   const [currentIdx, setCurrentIdx] = React.useState(0);
   const [touchDiff, setTouchDiff] = React.useState<number>();
@@ -228,7 +155,7 @@ export default function TopBannerCarousel(props: TopBannerCarouselProps) {
   }, [isResponsive]);
 
   // 터치 핸들링
-  const wrapperRef = React.useRef<HTMLDivElement>();
+  const wrapperRef = React.useRef<HTMLDivElement>(null);
   const touchRef: any = React.useRef(null);
 
   const handleTouchStart = React.useCallback((e: React.TouchEvent<HTMLDivElement>) => {
@@ -328,23 +255,14 @@ export default function TopBannerCarousel(props: TopBannerCarouselProps) {
   }, [handleRightClick, currentIdx, touchDiff, focused]);
 
   // 트래킹
-  // const [tracker] = useEventTracker();
-  // React.useEffect(() => {
-  //   const device = getDeviceType();
-  //   const deviceType = ['mobile', 'tablet'].includes(device) ? 'Mobile' : 'Pc';
-  //   // FIXME: 이게 최선입니까?
-  //   window.setImmediate(() => {
-  //     const item = {
-  //       id: banners[currentIdx].id,
-  //       order: currentIdx,
-  //       ts: new Date().getTime(),
-  //     };
-  //     tracker.sendEvent('display', {
-  //       section: `${deviceType}.${slug}`,
-  //       items: [item],
-  //     });
-  //   });
-  // }, [banners, currentIdx]);
+  React.useEffect(() => {
+    const trackingParams: DefaultTrackingParams = {
+      section,
+      index: currentIdx,
+      id: banners[currentIdx].id,
+    };
+    dispatch(TrackingActions.trackImpression({ trackingParams }));
+  }, [currentIdx]);
 
   return (
     <CarouselWrapper
@@ -365,6 +283,7 @@ export default function TopBannerCarousel(props: TopBannerCarouselProps) {
         {({ index, activeIndex, itemWidth }) => (
           <CarouselItem
             key={index}
+            index={index}
             itemWidth={itemWidth}
             banner={banners[index]}
             active={index === activeIndex}
@@ -375,6 +294,7 @@ export default function TopBannerCarousel(props: TopBannerCarouselProps) {
                 index,
               )
             }
+            section={section}
           />
         )}
       </BigBannerCarousel>

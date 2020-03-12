@@ -4,8 +4,8 @@ import { useSelector } from 'react-redux';
 
 import { RidiSelectState } from 'app/store';
 import { AppStatus } from 'app/services/app';
-import { selectIsInApp } from 'app/services/environment/selectors';
 import TopBannerCarousel, { IMAGE_WIDTH } from 'app/components/TopBanner';
+import { getSectionStringForTracking } from 'app/services/tracking/utils';
 
 const TopBannerSkeleton = styled.div`
   width: 100%;
@@ -22,14 +22,20 @@ const BigBanner: React.FunctionComponent = () => {
   const bigBannerList = useSelector((state: RidiSelectState) =>
     appStatus === AppStatus.Books ? state.home.bigBannerList : state.articleHome.bigBannerList,
   );
-  const isInApp = useSelector(selectIsInApp);
+  const service = appStatus === AppStatus.Books ? 'select-book' : 'select-article';
+  const section = getSectionStringForTracking(service, 'home', 'big-banner');
   const banners = bigBannerList.map(bannerItem => ({
+    id: bannerItem.id,
     landing_url: bannerItem.linkUrl,
     main_image_url: bannerItem.imageUrl,
     title: bannerItem.title,
   }));
 
-  return fetchedAt ? <TopBannerCarousel banners={banners} /> : <TopBannerSkeleton />;
+  return fetchedAt ? (
+    <TopBannerCarousel banners={banners} section={section} />
+  ) : (
+    <TopBannerSkeleton />
+  );
 };
 
 export default BigBanner;
